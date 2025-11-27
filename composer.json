@@ -1,0 +1,8 @@
+{
+    "require-dev": {
+        "behat/behat": "^3.27"
+    },
+    "require": {
+        "umc/uutg": "^2.0"
+    }
+}
