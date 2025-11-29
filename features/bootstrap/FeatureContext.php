@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 use Behat\Behat\Context\Context;
-use Behat\Behat\Tester\Exception\PendingException;
-use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
 use Behat\Step\Given;
-use Behat\Step\Then;
 use Behat\Step\When;
+use Behat\Step\Then;
+use App\Domain\Cart;
 
 /**
  * Defines application features from the specific context.
  */
 class FeatureContext implements Context
 {
+    private Cart $cart;
+
     /**
      * Initializes context.
      *
@@ -20,23 +22,32 @@ class FeatureContext implements Context
      * You can also pass arbitrary arguments to the
      * context constructor through behat.yml.
      */
-    public function __construct() {}
+    public function __construct()
+    {
+        $this->cart = new Cart();
+    }
 
     #[Given('an empty cart')]
     public function anEmptyCart(): void
     {
-        throw new PendingException();
+        $this->cart = new Cart();
     }
 
     #[When('I add an item priced at :arg1€')]
-    public function iAddAnItemPricedAt($arg1): void
+    public function iAddAnItemPricedAt(int $arg1): void
     {
-        throw new PendingException();
+        $this->cart->addItem($arg1);
     }
 
     #[Then('the cart total should be :arg1€')]
-    public function theCartTotalShouldBe($arg1): void
+    public function theCartTotalShouldBe(int $arg1): void
     {
-        throw new PendingException();
+        $total = $this->cart->total();
+
+        if ($total !== $arg1) {
+            throw new \RuntimeException(
+                sprintf('Expected total %d€, got %d€', $arg1, $total)
+            );
+        }
     }
 }

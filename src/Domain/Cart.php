@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Domain;
 
@@ -10,7 +8,10 @@ final class Cart
 
     public function addItem(int $priceInEuros): void
     {
-        // Minimal behavior: just accumulate the total
+        if ($priceInEuros < 0) {
+            throw new \InvalidArgumentException('Price must be positive');
+        }
+
         $this->total += $priceInEuros;
     }
 
