@@ -1,0 +1,132 @@
+openapi: 3.0.3
+info:
+  title: Minimal Cart API
+  version: 1.0.0
+  description: >
+    Headless minimal cart API backed by a PHP domain Cart.
+    Uses session to persist cart state between requests.
+
+servers:
+  - url: http://localhost:8000
+    description: Local dev server
+
+paths:
+  /cart:
+    get:
+      summary: Get current cart
+      description: Returns the current state of the cart for the active session.
+      responses:
+        '200':
+          description: Current cart state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+              examples:
+                emptyCart:
+                  summary: Empty cart
+                  value:
+                    total: 0
+                    itemsCount: 0
+                    items: []
+                nonEmptyCart:
+                  summary: Cart with items
+                  value:
+                    total: 30
+                    itemsCount: 2
+                    items: [10, 20]
+
+    delete:
+      summary: Clear the cart
+      description: Clears all items from the cart and resets the total.
+      responses:
+        '200':
+          description: Cart cleared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+              example:
+                total: 0
+                itemsCount: 0
+                items: []
+
+  /cart/items:
+    post:
+      summary: Add an item to the cart
+      description: >
+        Adds an item with a given price (integer) to the cart.  
+        Updates total, itemsCount and items list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - price
+              properties:
+                price:
+                  type: integer
+                  description: Item price in whole currency units (e.g. euros).
+                  example: 10
+      responses:
+        '201':
+          description: Item added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+              example:
+                total: 10
+                itemsCount: 1
+                items: [10]
+        '400':
+          description: Invalid input or business rule violation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                nonIntegerPrice:
+                  summary: Non-integer price
+                  value:
+                    error: price must be an integer
+                negativePrice:
+                  summary: Negative price rejected
+                  value:
+                    error: Price must be positive
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Sum of all item prices in the cart.
+          example: 30
+        itemsCount:
+          type: integer
+          description: Number of items currently in the cart.
+          example: 2
+        items:
+          type: array
+          description: List of item prices.
+          items:
+            type: integer
+          example: [10, 20]
+      required:
+        - total
+        - itemsCount
+        - items
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+          example: price must be an integer
+      required:
+        - error

@@ -64,4 +64,35 @@ class CartTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->cart->addItem(-5);
     }
+
+    #[Test]
+    public function testItemsListContainsEachAddedPrice(): void
+    {
+        // Given an empty cart (setUp)
+
+        // When I add items priced at 10€ and 20€
+        $this->cart->addItem(10);
+        $this->cart->addItem(20);
+
+        // Then the cart items should be [10, 20]
+        self::assertSame([10, 20], $this->cart->items());
+    }
+
+    #[Test]
+    public function testClearResetsTotalAndItems(): void
+    {
+        // Given a cart with two items priced at 10 and 20
+        $this->cart->addItem(10);
+        $this->cart->addItem(20);
+
+        // When I clear the cart
+        $this->cart->clear();
+
+        // Then the cart total should be 0
+        self::assertSame(0, $this->cart->total());
+
+        // And the cart should contain 0 items
+        self::assertSame(0, $this->cart->itemsCount());
+        self::assertSame([], $this->cart->items());
+    }
 }
